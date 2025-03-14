@@ -25,12 +25,18 @@
             padding: 10px;
             border-radius: 10px;
         }
+        label {
+            font-size: 14px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
     <div id="cesiumContainer"></div>
     <div id="controls">
+        <label for="timeSlider">Tid:</label>
         <input type="range" id="timeSlider" min="0" max="23" step="1" value="12">
+        <label for="datePicker">Datum:</label>
         <input type="date" id="datePicker">
     </div>
     
@@ -43,10 +49,11 @@
         });
 
         // Load high-detail Google Photorealistic 3D Tiles
-        const google3DTiles = new Cesium.Cesium3DTileset({
-            url: 'https://tile.googleapis.com/v1/3dtiles/root.json?key=YOUR_GOOGLE_MAPS_API_KEY'
+        Cesium.GooglePhotorealistic3DTileset.fromIonAssetId(1).then(tileset => {
+            viewer.scene.primitives.add(tileset);
+        }).catch(error => {
+            console.error('Error loading 3D tiles:', error);
         });
-        viewer.scene.primitives.add(google3DTiles);
 
         // Position the camera at a default location
         viewer.camera.setView({
