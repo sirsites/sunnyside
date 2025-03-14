@@ -14,18 +14,25 @@
             padding: 0;
             overflow: hidden;
         }
-        #timeSlider {
+        #controls {
             position: absolute;
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            width: 300px;
+            display: flex;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 10px;
         }
     </style>
 </head>
 <body>
     <div id="cesiumContainer"></div>
-    <input type="range" id="timeSlider" min="0" max="24" step="0.1" value="12">
+    <div id="controls">
+        <input type="range" id="timeSlider" min="0" max="23" step="1" value="12">
+        <input type="date" id="datePicker">
+    </div>
     
     <script>
         Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI0MTViODNjNy04N2QyLTQwYTctYjc3Ny1kMmI3OTVlZjFjNWYiLCJpZCI6Mjg0MjI2LCJpYXQiOjE3NDE5MzYwNjF9.15rw8Vb8V0egTX1d_UihfxxUQTus9g5cQPkMgyL5g4E';
@@ -54,17 +61,24 @@
         // Enable real-time lighting
         viewer.scene.globe.enableLighting = true;
 
-        // Time slider event
-        document.getElementById('timeSlider').addEventListener('input', function(event) {
-            let hours = parseFloat(event.target.value);
-            let time = new Date();
-            time.setUTCHours(hours, 0, 0, 0);
-            viewer.clock.currentTime = Cesium.JulianDate.fromDate(time);
+        // Set initial date to today
+        const datePicker = document.getElementById('datePicker');
+        const today = new Date().toISOString().split('T')[0];
+        datePicker.value = today;
+
+        function updateTimeAndDate() {
+            let hours = parseInt(document.getElementById('timeSlider').value);
+            let selectedDate = new Date(datePicker.value);
+            selectedDate.setUTCHours(hours, 0, 0, 0);
+            viewer.clock.currentTime = Cesium.JulianDate.fromDate(selectedDate);
             viewer.scene.light = new Cesium.DirectionalLight({
                 direction: Cesium.Cartesian3.negate(Cesium.SunDirection, new Cesium.Cartesian3()),
                 intensity: 1.0
             });
-        });
+        }
+
+        document.getElementById('timeSlider').addEventListener('input', updateTimeAndDate);
+        document.getElementById('datePicker').addEventListener('change', updateTimeAndDate);
     </script>
 </body>
 </html>
