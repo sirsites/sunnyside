@@ -30,12 +30,19 @@
     <script>
         Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI0MTViODNjNy04N2QyLTQwYTctYjc3Ny1kMmI3OTVlZjFjNWYiLCJpZCI6Mjg0MjI2LCJpYXQiOjE3NDE5MzYwNjF9.15rw8Vb8V0egTX1d_UihfxxUQTus9g5cQPkMgyL5g4E';
         const viewer = new Cesium.Viewer('cesiumContainer', {
-            terrainProvider: Cesium.createWorldTerrain()
+            terrainProvider: Cesium.createWorldTerrain(),
+            sceneMode: Cesium.SceneMode.SCENE3D,
+            shadows: true
         });
+
+        // Load 3D buildings
+        viewer.scene.primitives.add(new Cesium.Cesium3DTileset({
+            url: Cesium.IonResource.fromAssetId(96188) // Cesium 3D buildings
+        }));
 
         // Position the camera at a default location
         viewer.camera.setView({
-            destination: Cesium.Cartesian3.fromDegrees(18.0686, 59.3293, 500), // Stockholm
+            destination: Cesium.Cartesian3.fromDegrees(18.0686, 59.3293, 1000), // Stockholm
             orientation: {
                 heading: 0.0,
                 pitch: -Cesium.Math.PI_OVER_FOUR,
@@ -43,13 +50,19 @@
             }
         });
 
+        // Enable real-time lighting
+        viewer.scene.globe.enableLighting = true;
+
         // Time slider event
         document.getElementById('timeSlider').addEventListener('input', function(event) {
             let hours = parseFloat(event.target.value);
             let time = new Date();
             time.setUTCHours(hours, 0, 0, 0);
-            viewer.scene.globe.enableLighting = true;
             viewer.clock.currentTime = Cesium.JulianDate.fromDate(time);
+            viewer.scene.light = new Cesium.DirectionalLight({
+                direction: Cesium.Cartesian3.negate(Cesium.SunDirection, new Cesium.Cartesian3()),
+                intensity: 1.0
+            });
         });
     </script>
 </body>
